@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kalkulator Biner ↔ IP</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      background-color: #f4f4f4;
+      margin: 0;
+    }
+    h2 {
+      color: #333;
+      font-size: 1.2rem;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .container {
+      background: white;
+      padding: 16px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: 20px auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: none;
+    }
+    .output {
+      background: #e9e9e9;
+      padding: 10px;
+      border-radius: 5px;
+      word-wrap: break-word;
+      margin-bottom: 5px;
+    }
+    .details {
+      background: #fffbe0;
+      border-left: 5px solid orange;
+      padding: 10px;
+      margin-top: 5px;
+      display: none;
+      font-size: 0.95rem;
+    }
+    .popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 10px;
+    }
+    .popup-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    .popup-header {
+      background: red;
+      color: white;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 5px 5px 0 0;
+      margin-bottom: 10px;
+    }
+    .copyright {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+<!-- POPUP -->
+<div class="popup" id="popup">
+  <div class="popup-content">
+    <div class="popup-header">Harap Baca</div>
+    <p>
+      Kalkulator web konversi biner ke IP dan sebaliknya ini dibuat oleh <b>RAMA SMKN 1 Pacet</b>.<br>
+      Diharapkan jangan pakai saat ujian.<br><br>Terimakasih!
+    </p>
+    <label><input type="checkbox" id="agreeCheck"> Ya, saya setuju</label><br><br>
+    <button id="continueBtn" disabled>Lanjut ke Kalkulator</button>
+  </div>
+</div>
+
+<!-- Kalkulator -->
+<div class="container" id="calculatorContainer">
+  <h2>IP ke Biner</h2>
+  <input type="text" id="ipInput" placeholder="Masukkan IP (contoh: 192.168.0.1)">
+  <button onclick="ipToBinary()">Konversi ke Biner</button>
+  <div class="output" id="binaryResult"></div>
+  <button onclick="showIpToBinDetail()" id="btnDetailIpToBin" style="display:none;">Lihat Rincian</button>
+  <div class="details" id="detailIpToBin"></div>
+
+  <h2>Biner ke IP</h2>
+  <input type="text" id="binaryInput" placeholder="Masukkan Biner (contoh: 11000000.10101000.00000000.00000001)">
+  <button onclick="binaryToIp()">Konversi ke IP</button>
+  <div class="output" id="ipResult"></div>
+  <button onclick="showBinToIpDetail()" id="btnDetailBinToIp" style="display:none;">Lihat Rincian</button>
+  <div class="details" id="detailBinToIp"></div>
+</div>
+
+<!-- Hak Cipta -->
+<div class="copyright">©RAMA TJKT</div>
+
+<script>
+  function ipToBinary() {
+    const ip = document.getElementById("ipInput").value.trim();
+    const parts = ip.split(".");
+    if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) {
+      document.getElementById("binaryResult").innerText = "IP tidak valid!";
+      document.getElementById("btnDetailIpToBin").style.display = "none";
+      document.getElementById("detailIpToBin").style.display = "none";
+      return;
+    }
+    const binary = parts.map(p => parseInt(p).toString(2).padStart(8, "0")).join(".");
+    document.getElementById("binaryResult").innerText = binary;
+    document.getElementById("btnDetailIpToBin").style.display = "block";
+    generateIpToBinaryDetails(parts);
+  }
+
+  function generateIpToBinaryDetails(parts) {
+    let detail = "";
+    for (let i = 0; i < parts.length; i++) {
+      const num = parseInt(parts[i]);
+      let bin = num.toString(2).padStart(8, '0');
+      let breakdown = [];
+      for (let j = 0; j < 8; j++) {
+        if (bin[j] === '1') breakdown.push(`2^${7-j} = ${Math.pow(2, 7-j)}`);
+      }
+      detail += `📦 ${num} → ${bin} → ${breakdown.join(" + ")} = ${num}<br><br>`;
+    }
+    document.getElementById("detailIpToBin").innerHTML = detail;
+  }
+
+  function binaryToIp() {
+    const binary = document.getElementById("binaryInput").value.trim();
+    const parts = binary.split(".");
+    if (parts.length !== 4 || parts.some(p => !/^[01]{8}$/.test(p))) {
+      document.getElementById("ipResult").innerText = "Format biner tidak valid!";
+      document.getElementById("btnDetailBinToIp").style.display = "none";
+      document.getElementById("detailBinToIp").style.display = "none";
+      return;
+    }
+    const ip = parts.map(p => parseInt(p, 2)).join(".");
+    document.getElementById("ipResult").innerText = ip;
+    document.getElementById("btnDetailBinToIp").style.display = "block";
+    generateBinaryToIpDetails(parts);
+  }
+
+  function generateBinaryToIpDetails(parts) {
+    let detail = "";
+    for (let i = 0; i < parts.length; i++) {
+      const bin = parts[i];
+      let total = 0;
+      let breakdown = [];
+      for (let j = 0; j < 8; j++) {
+        if (bin[j] === '1') {
+          breakdown.push(`2^${7-j} = ${Math.pow(2, 7-j)}`);
+          total += Math.pow(2, 7-j);
+        }
+      }
+      detail += `📦 ${bin} → ${breakdown.join(" + ")} = ${total}<br><br>`;
+    }
+    document.getElementById("detailBinToIp").innerHTML = detail;
+  }
+
+  function showIpToBinDetail() {
+    const el = document.getElementById("detailIpToBin");
+    el.style.display = el.style.display === "none" ? "block" : "none";
+  }
+
+  function showBinToIpDetail() {
+    const el = document.getElementById("detailBinToIp");
+    el.style.display = el.style.display === "none" ? "block" : "none";
+  }
+
+  // Popup logic
+  const agreeCheck = document.getElementById("agreeCheck");
+  const continueBtn = document.getElementById("continueBtn");
+  const popup = document.getElementById("popup");
+  const calculator = document.getElementById("calculatorContainer");
+
+  agreeCheck.addEventListener("change", function () {
+    continueBtn.disabled = !this.checked;
+  });
+
+  continueBtn.addEventListener("click", function () {
+    popup.style.display = "none";
+    calculator.style.display = "block";
+  });
+</script>
+
+</body>
+</html>
